@@ -1,0 +1,72 @@
+name: CI Pipeline
+
+# Eventos que disparan el workflow
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Permite ejecución manual
+
+# Jobs a ejecutar
+jobs:
+  # Job 1: Test
+  test:
+    name: Ejecutar Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Checkout del código
+      - name: Checkout código
+        uses: actions/checkout@v3
+      
+      # Step 2: Setup Node.js
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      # Step 3: Instalar dependencias (si las hay)
+      - name: Instalar dependencias
+        run: npm install
+      
+      # Step 4: Ejecutar tests
+      - name: Ejecutar tests
+        run: npm test
+      
+      # Step 5: Mostrar información del sistema
+      - name: Info del Sistema
+        run: |
+          echo "Sistema Operativo: $RUNNER_OS"
+          echo "Arquitectura: $RUNNER_ARCH"
+          uname -a
+          node --version
+          npm --version
+
+  # Job 2: Build (se ejecuta después de test)
+  build:
+    name: Build de la aplicación
+    needs: test  # Depende de que test pase
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Build
+        run: |
+          echo "Building application..."
+          npm install
+          node index.js
+          echo "Build completado!"
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-build
+          path: .

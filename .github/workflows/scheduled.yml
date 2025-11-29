@@ -1,0 +1,20 @@
+name: Verificación Programada
+
+on:
+  schedule:
+    # Ejecutar todos los días a las 8 AM UTC
+    - cron: '0 8 * * *'
+  workflow_dispatch:  # También permite ejecución manual
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Health Check
+        run: |
+          echo "Ejecutando health check..."
+          npm test
+          echo "Sistema saludable!"
